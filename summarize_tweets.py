@@ -121,10 +121,8 @@ def summarized():
     swrds = set(stopwords.words('english'))
     
     # Station Stop Names
-    import pyodbc
     import pandas as pd
-    con  = pyodbc.connect(dsn='trains')
-    stops = pd.read_sql_query(sql="select stop_name from trains.stops", con=con)
+    stops = pd.read_csv('C:/Users/mikea/Documents/Analytics/NJ Transit/rail_data/'+'stops.csv', names = ['stop_name'])
     stops['keep'] = stops['stop_name'].apply(lambda s: 0 if 'LIGHT RAIL' in s.upper() else 1)
     stops = stops[stops['keep']==1]
     stops['stop_name'].str.lower().str.split().apply(swrds.update)
@@ -175,7 +173,7 @@ def summarized():
     ### Remove words seen less than 100 times
     relevant['block3'] = relevant['block2'].apply(lambda words: [word for word in words if word_freqs[word] >= 10])
     relevant['block3_alph'] = relevant['block3'].apply(lambda x: sorted(x)) # Order of words doesn't matter
-    
+    relevant['reason'] = relevant['block3'].apply(lambda x: ' '.join(x)) # Change list of words into string. Note: Not doing alphabetical this time, so sentences make sense.
     
     ### Create a number for each delay/cancel reason
     list_number = list()
@@ -205,10 +203,8 @@ def reason_counts(df, phrases, n):
     return reason_counts
 
 
-
-
-
-
+data, phrases = summarized()
+# reason_counts = reason_counts(data, phrases, 10)
 
 
 #I don't think a topic model is appropriate, because there aren't enough words!
