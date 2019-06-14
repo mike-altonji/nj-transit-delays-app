@@ -12,7 +12,7 @@ def summarized():
     import re
     import string
     import os
-    os.chdir('/home/mike/Analytics/NJ Transit/tweet logs')
+    os.chdir('C:/Users/mikea/Documents/Analytics/NJ Transit/tweet logs')
 
     """
     Pull tweets from CSV files
