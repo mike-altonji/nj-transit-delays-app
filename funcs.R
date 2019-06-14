@@ -8,6 +8,7 @@ filter.df <- function(data, line.in, station.in, date.in) {
   final = data
   if (length(line.in > 0))    {final = subset(final, line %in% line.in)}
   if (length(station.in > 0)) {final = subset(final, station %in% station.in)}
+  final = subset(final, date >= date.in[1] & date <= date.in[2])
   # need to add date filter next
   
   return(final)
