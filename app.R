@@ -10,7 +10,6 @@ source('C:/Users/mikea/Documents/Analytics/NJ Transit/nj_transit/funcs.R')
 source_python('C:/Users/mikea/Documents/Analytics/NJ Transit/nj_transit/summarize_tweets.py')
 setDT(data)
 data$date = as.Date(data$time) # date doesn't transfer correctly from Python
-
                      
 " App Starts Here "
 ui <- fluidPage(
@@ -30,7 +29,9 @@ ui <- fluidPage(
     # Main panel -----------
     mainPanel(
       # DTOutput("table"), 
-      plotlyOutput('histogram')
+      plotlyOutput('histogram'), 
+      br(), br(), 
+      plotlyOutput('time.series')
     )
   )
 )
@@ -42,6 +43,8 @@ server <- function(input, output) {
   output$table <- renderDT({data.filter()})
   histogram = reactive(create.hist(data.filter(), input$n))
   output$histogram <- renderPlotly({histogram() })
+  time.series = reactive(create.time(data.filter() ))
+  output$time.series <- renderPlotly({time.series() })
   
 }
 

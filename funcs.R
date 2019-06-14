@@ -32,6 +32,25 @@ create.hist <- function(data, n) {
   return(histogram)
 }
 
+
+create.time <- function(data) {
+  keycol <-c("date")
+  setorderv(data, keycol)
+
+  # The most recent min value for a line. To be fair.
+  maximum = as.Date("2000-01-01")
+  for (line.id in unique(data$line)) {
+    a = min(subset(data, line == line.id)$date)
+    if (a > maximum) {maximum = a}
+  }
+  data = subset(data, date >= maximum)
+  
+  data$cum = seq(from=1, to = nrow(data))
+  
+  time.series <- plot_ly(x = data$date, y = data$cum, type = 'scatter', mode = "lines")
+  return(time.series)
+}
+
 # create
 # 
 # 
