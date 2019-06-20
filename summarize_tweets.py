@@ -7,11 +7,46 @@ Created on Tue Apr 30 22:15:28 2019
 """
 
 
+def ldist(s1, s2):
+    if len(s1) > len(s2):
+        s1, s2 = s2, s1
+
+    distances = range(len(s1) + 1)
+    for i2, c2 in enumerate(s2):
+        distances_ = [i2+1]
+        for i1, c1 in enumerate(s1):
+            if c1 == c2:
+                distances_.append(distances[i1])
+            else:
+                distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
+        distances = distances_
+    return distances[-1]
+
+def right_station(text, stations):
+    if text in ['hob', 'nyps', 'nps', 'sec', 'aberdeen', 'matawan']:
+        if text == 'hob': selection = 'hoboken'
+        elif text == 'nyps': selection = 'psny'
+        elif text == 'nps': selection = 'newark penn station'
+        elif text == 'sec': selection = 'secaucus'
+        elif text in ['matawan', 'aberdeen']: selection = 'aberdeenmatawan'
+        else: selection = 'Error'
+    else:    
+        minimum = 999999999
+        selection = 'None'
+        for station in stations:
+            value = ldist(text, station)
+            if value < minimum:
+                minimum = value
+                selection = station
+    return selection
+
+#########   Main Function -----------------------------------------------------
 def summarized():
     import pandas as pd
     import re
     import string
     import os
+    import csv
     os.chdir('C:/Users/mikea/Documents/Analytics/NJ Transit/tweet logs')
 
     """
@@ -47,7 +82,7 @@ def summarized():
     relevant['station_prep'] = relevant['text'].apply(lambda s: re.search(r'from(.*?)(is|has)', s.lower() ).group(0) if re.search(r'from(.*?)(is|has)', s.lower() ) else 'error' )
     relevant['station_prep'] = relevant['station_prep'].apply(lambda s: s.rsplit(' ', 1)[0])
     relevant['station_prep'] = relevant['station_prep'].apply(lambda s: s.split(' ', 1)[-1].strip())
-    relevant['station'] = relevant['station_prep'].apply(lambda s: s.translate(str.maketrans('', '', string.punctuation)) )
+    relevant['station_raw'] = relevant['station_prep'].apply(lambda s: s.translate(str.maketrans('', '', string.punctuation)) )
     relevant = relevant[relevant['station_prep'] != 'error']
     
     # Cancel or Delay ... VERY GOOD, but didn't actually check
@@ -187,6 +222,20 @@ def summarized():
             phrase_id += 1
         else: list_number.append(list(phrases.keys())[list(phrases.values()).index(phrase)])
     relevant['block_number'] = list_number
+    
+    #########   Fix the Station Names   #######################################
+    stations = []
+    with open('C:/Users/mikea/Documents/Analytics/NJ Transit/'+'valid_stations.csv', 'r') as f:
+        reader = csv.reader(f)
+        lst = list(reader)
+    for station in lst:
+        stations.append(station[0])
+    
+    station_df = relevant['station_raw'].value_counts().reset_index()
+    station_df['station'] = station_df['index'].apply(lambda x: right_station(x, stations))
+    
+    relevant = relevant.merge(station_df, how = 'left', left_on = 'station_raw', right_on = 'index')
+    
     return relevant, phrases
 
 
@@ -204,6 +253,8 @@ def reason_counts(df, phrases, n):
 
 
 data, phrases = summarized()
+
+
 # reason_counts = reason_counts(data, phrases, 10)
 
 
