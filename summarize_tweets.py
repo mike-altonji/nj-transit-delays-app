@@ -235,6 +235,7 @@ def summarized():
     station_df['station'] = station_df['index'].apply(lambda x: right_station(x, stations))
     
     relevant = relevant.merge(station_df, how = 'left', left_on = 'station_raw', right_on = 'index')
+    relevant = relevant[['text', 'id', 'line', 'date', 'train', 'time_train', 'Delay', 'Cancel', 'delay_minutes', 'reason', 'block_number', 'station']]
     
     return relevant, phrases
 
@@ -253,7 +254,9 @@ def reason_counts(df, phrases, n):
 
 
 data, phrases = summarized()
-
+import os
+os.chdir('C:/Users/mikea/Documents/Analytics/NJ Transit/')
+data.to_csv('data.csv', index=False)
 
 # reason_counts = reason_counts(data, phrases, 10)
 
