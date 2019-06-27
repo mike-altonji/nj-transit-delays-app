@@ -3,12 +3,10 @@ library(shiny)
 library(shinyTime)
 library(DT)
 
-setwd('C:/Users/mikea/Documents/Analytics/NJ Transit/nj_transit/')
-source('C:/Users/mikea/Documents/Analytics/NJ Transit/nj_transit/funcs.R')
+source('funcs.R') # Shall be in the same directory as app.R
 
-### Returns "data" and "phrases"
-# source_python('C:/Users/mikea/Documents/Analytics/NJ Transit/nj_transit/data_for_R.py')
-data = read.csv('C:/Users/mikea/Documents/Analytics/NJ Transit/data.csv')
+### Pull data from CSV
+data = read.csv('data.csv') # Shall be in the same directory as app.R
 data$date = as.Date(data$date, format = "%Y-%m-%d") # date doesn't transfer correctly from Python
 data$time_train = as.ITime(strptime(data$time_train, "%l:%M%p")) # Will set date portion to today, but shouldn't matter. I just want time.
 data$reason = as.character(data$reason)
