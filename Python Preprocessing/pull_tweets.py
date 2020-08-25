@@ -2,11 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Apr 28 20:40:24 2019
+Purpose: To collect the most recent Twitter data from NJ Transit accounts.
 @author: mike
 """
-
-### Known Issues ###
-# 1) SOMETHING IS BROKEN WITH ACRL...IT KEEPS DOING MULTIPLE PULLS EVEN WHEN NO NEW DATA
 
 import os
 import pandas as pd

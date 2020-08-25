@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr 30 22:15:28 2019
-
+Purpose: To preprocess the raw NJ Transit Twitter data.
+   - Provides time, reason, and Train ID of the delay using Regex statements.
 @author: mike
 """
 

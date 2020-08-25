@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun May  5 23:56:35 2019
-
+Purpose: To explore the NJ Transit dataset informally.
 @author: mike
 """
 

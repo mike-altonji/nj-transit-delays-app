@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun 19 20:14:29 2019
-
+Purpose: To ensure proper labeling of train station names
 @author: mikea
 """
 
