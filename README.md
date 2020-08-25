@@ -1,5 +1,5 @@
 
-nj_transit
+NJ Transit Delays App
 ===========
 NJ Transit commuter trains are notoriously late. This project contains a dashboard displaying data around train delay dates, times, locations, and reasons. It relies on data scraped from various NJ Transit Twitter accounts.
 Dashboard Link: [https://altonji-analytics.shinyapps.io/nj-transit-delays/](https://altonji-analytics.shinyapps.io/nj-transit-delays/)
