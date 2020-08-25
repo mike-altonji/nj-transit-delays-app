@@ -5,6 +5,13 @@ Purpose: To ensure proper labeling of train station names
 @author: mikea
 """
 
+import csv
+import pandas as pd
+import yaml
+
+with open('config.yml') as file:
+    config = yaml.full_load(file)
+repo_path = config['REPO_PATH']
 
 def ldist(s1, s2):
     if len(s1) > len(s2):
@@ -40,9 +47,8 @@ def right_station(text, stations):
     return selection
 
 
-import csv
 stations = []
-with open('C:/Users/mikea/Documents/Analytics/NJ Transit/'+'valid_stations.csv', 'r') as f:
+with open(repo_path + 'valid_stations.csv', 'r') as f:
     reader = csv.reader(f)
     lst = list(reader)
 for station in lst:
@@ -50,7 +56,7 @@ for station in lst:
 
 
 wrongs = []
-with open('C:/Users/mikea/Documents/Analytics/NJ Transit/'+'testing.csv', 'r') as f:
+with open(repo_path + 'testing.csv', 'r') as f:
     reader = csv.reader(f)
     lst = list(reader)
 for wrong in lst:
@@ -60,8 +66,8 @@ check = []
 for wrong in wrongs:
     check.append([wrong, right_station(wrong, stations)])
 
-import pandas as pd
-station_df = pd.read_csv('C:/Users/mikea/Documents/Analytics/NJ Transit/'+'Station_Names.csv')
+
+station_df = pd.read_csv(repo_path + 'Station_Names.csv')
 station_df['Pred'] = station_df['Station'].apply(lambda x: right_station(x, stations))
 station_df['good'] = station_df['Actual'] == station_df['Pred']
 correct_pct = station_df[station_df['good'] == True]['Count'].sum() / station_df['Count'].sum()

@@ -7,6 +7,23 @@ Purpose: To preprocess the raw NJ Transit Twitter data.
 @author: mike
 """
 
+import pandas as pd
+import re
+import string
+import csv
+import yaml
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem import WordNetLemmatizer 
+from nltk.corpus import stopwords
+from collections import Counter
+from spellchecker import SpellChecker
+
+with open('config.yml') as file:
+    config = yaml.full_load(file)
+
+repo_path = config['REPO_PATH']
+tweet_logs_path = config['TWEET_LOGS_PATH']
+rail_data_path  = config['RAIL_DATA_PATH']
 
 def ldist(s1, s2):
     if len(s1) > len(s2):
@@ -43,20 +60,13 @@ def right_station(text, stations):
 
 #########   Main Function -----------------------------------------------------
 def summarized():
-    import pandas as pd
-    import re
-    import string
-    import os
-    import csv
-    os.chdir('C:/Users/mikea/Documents/Analytics/NJ Transit/tweet logs')
-
     """
     Pull tweets from CSV files
     """
     lines = ['ACRL', 'MBPJ', 'ME', 'MOBO', 'NEC', 'NJCL', 'PVL', 'RVL']
     tweets = pd.DataFrame(columns = ['text', 'time', 'id', 'line'])
     for line in lines:
-        temp = pd.read_csv('NJTransit_' + line + '.csv', parse_dates=['time'])
+        temp = pd.read_csv(tweet_logs_path + 'NJTransit_' + line + '.csv', parse_dates=['time'])
         temp['line'] = line
         tweets = tweets.append(temp)
     tweets = tweets.reset_index(drop=False)
@@ -141,24 +151,18 @@ def summarized():
     """
     
     ### Tokenize, remove punctuation ###
-    from nltk.tokenize import RegexpTokenizer
     tokenizer = RegexpTokenizer(r'\w+')
     relevant['block'] = relevant['reason_text'].apply(lambda s: tokenizer.tokenize(s))
     
     ### Remove word endings
-    from nltk.stem import WordNetLemmatizer 
     lemmatizer = WordNetLemmatizer() 
-    relevant['block'] = relevant['block'].apply(lambda words: [lemmatizer.lemmatize(word) for word in words])
-    
-    ### Get Stopwords
-    from nltk.corpus import stopwords
+    relevant['block'] = relevant['block'].apply(lambda words: [lemmatizer.lemmatize(word) for word in words])    
     
     # English stopwords
     swrds = set(stopwords.words('english'))
     
     # Station Stop Names
-    import pandas as pd
-    stops = pd.read_csv('C:/Users/mikea/Documents/Analytics/NJ Transit/rail_data/'+'stops.csv', names = ['stop_name'])
+    stops = pd.read_csv(rail_data_path + 'stops.csv', names = ['stop_name'])
     stops['keep'] = stops['stop_name'].apply(lambda s: 0 if 'LIGHT RAIL' in s.upper() else 1)
     stops = stops[stops['keep']==1]
     stops['stop_name'].str.lower().str.split().apply(swrds.update)
@@ -176,14 +180,12 @@ def summarized():
     """
     
     ### Count word frequencies
-    from collections import Counter
     word_freqs = Counter(relevant['block'].sum())
     
     # Find all unique words
     all_words = word_freqs.keys()
     
     # Find mis-spellings
-    from spellchecker import SpellChecker
     spell = SpellChecker()
     misspelled = spell.unknown(all_words)
     other_valid_words = ['conrail', 'delair']
@@ -226,7 +228,7 @@ def summarized():
     
     #########   Fix the Station Names   #######################################
     stations = []
-    with open('C:/Users/mikea/Documents/Analytics/NJ Transit/'+'valid_stations.csv', 'r') as f:
+    with open(repo_path + 'valid_stations.csv', 'r') as f:
         reader = csv.reader(f)
         lst = list(reader)
     for station in lst:
@@ -255,35 +257,4 @@ def reason_counts(df, phrases, n):
 
 
 data, phrases = summarized()
-import os
-os.chdir('C:/Users/mikea/Documents/Analytics/NJ Transit/')
-data.to_csv('data.csv', index=False)
-
-# reason_counts = reason_counts(data, phrases, 10)
-
-
-#I don't think a topic model is appropriate, because there aren't enough words!
-#"""
-#Topic Modeling on reason_block
-#"""
-#
-## Create corpus and generate topics
-#from gensim import corpora
-#dictionary = corpora.Dictionary(relevant['block3'])
-#corpus = [dictionary.doc2bow(text) for text in relevant['block3']]
-#
-#import gensim
-#topics = 8
-#ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics = topics, id2word=dictionary, passes=15)
-#ldamodel.save('model.gensim')
-#topics = ldamodel.print_topics(num_words=4)
-#for topic in topics:
-#    print(topic)
-#    
-#import pyLDAvis
-#lda_display = pyLDAvis.gensim.prepare(ldamodel, corpus, dictionary, sort_topics=False)
-#pyLDAvis.save_html(lda_display, 'Topic Model Viz.html')
-#
-## Assign topic to each HERE
-
-
+data.to_csv(repo_path + 'data.csv', index=False)

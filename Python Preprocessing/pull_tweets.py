@@ -6,19 +6,24 @@ Purpose: To collect the most recent Twitter data from NJ Transit accounts.
 @author: mike
 """
 
-import os
 import pandas as pd
 import tweepy
+import yaml
+import os
 
-os.chdir('C:/Users/mikea/Documents/Analytics/NJ Transit/tweet logs/')
 
 """
 Authentication with Twitter API
 """
-consumer_token      = 'tCn2W8cUblljmfrPjAn2kIxSo'
-consumer_secret     = 'awCpenhw5Im0XwMXziZ9CkjRjZizeUgfhm1paq2HAS9zHJkKaJ'
-access_token        = '1583849995-uGq8RVAV5V3BGqOWYWgJ8VdMzMtuOuHYz6s4MNb'
-access_secret       = 'SX0KK8mLtWd3nxPWn9ySeuPPd6bapAMLE4QK3bBevubsu'
+
+with open('config.yml') as file:
+    config = yaml.full_load(file)
+
+consumer_token  = config['CONSUMER_TOKEN']
+consumer_secret = config['CONSUMER_SECRET']
+access_token    = config['ACCESS_TOKEN']
+access_secret   = config['ACCESS_SECRET']
+tweet_logs_path = config['TWEET_LOGS_PATH']
 
 auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
 auth.set_access_token(access_token, access_secret)
@@ -66,13 +71,13 @@ def get_tweets(username, prior_tweets_exist = False, all_tweets = None, since_id
 Pull Tweets from select users, then save.
 """
 for name in ['NJTransit', 'NJTransit_ACRL', 'NJTransit_RVL', 'NJTransit_PVL', 'NJTransit_MBPJ', 'NJTransit_MOBO', 'NJTransit_ME', 'NJTransit_NJCL', 'NJTransit_NEC']:
-    if os.path.isfile(name + '.csv'):
-        prior_tweets = pd.read_csv(name + '.csv')
+    if os.path.isfile(tweet_logs_path + name + '.csv'):
+        prior_tweets = pd.read_csv(tweet_logs_path + name + '.csv')
         last_index = prior_tweets['id'][0]+1
         all_tweets = get_tweets(name, True, prior_tweets, last_index)
     else: 
         print('First time pulling', name)
         all_tweets = get_tweets(name, False, None, None)
-    all_tweets.to_csv(name + '.csv', index=False)
+    all_tweets.to_csv(tweet_logs_path + name + '.csv', index=False)
     
     
